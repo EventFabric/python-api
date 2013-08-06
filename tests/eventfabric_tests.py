@@ -5,7 +5,7 @@ import json
 import unittest
 
 TEST_DIR = os.path.dirname(__file__)
-BASE_DIR = os.path.join(TEST_DIR, '..')
+BASE_DIR = os.path.join(TEST_DIR, '..', 'src')
 sys.path.append(BASE_DIR)
 
 import eventfabric as ef

@@ -1,0 +1,101 @@
+Metadata-Version: 1.1
+Name: eventfabric
+Version: 0.1.0
+Summary: Event Fabric API client library
+Home-page: https://github.com/EventFabric/python-api
+Author: Mariano Guerra
+Author-email: mariano@marianoguerra.org
+License: MIT License
+Description: Event Fabric API Client
+        =======================
+        
+        Python 2 and 3 implementation of Event Fabric API to send events.
+        
+        Setup
+        -----
+        
+        The library dependes on the `Requests <http://docs.python-requests.org/en/latest/>`_ HTTP library, install it with::
+        
+            pip install requests
+        
+        Usage
+        -----
+        
+        see the examples folder for more usage examples
+        
+        ::
+        
+            # import the library
+            >>> import eventfabric as ef
+        
+            # create a client instance specifying username and password
+            >>> client = ef.Client("username", "password")
+        
+            # authenticate, should return True and 200, if not there was an error
+            >>> client.login()
+            (True, <Response [200]>)
+        
+            # create an event instance
+        
+            # the first parameter is a free form JSON
+            # value that contains information about the event
+        
+            # the second is the name of the channel where that event will go to
+        
+            # the channel is used to subscribe to a stream of events with the same
+            # channel id
+            >>> event1 = ef.Event({"name": "Bob", "count": 10}, "my.channel")
+        
+            # send the event, it should return True and 201, if not there was an error,
+            # make sure to check for authentication errors on long running agents to
+            # reauthenticate in case your credentials expire
+            >>> client.send_event(event1)
+            (True, <Response [201]>)
+        
+        Test
+        ----
+        
+        ::
+        
+            python tests/eventfabric_tests.py
+        
+        License
+        -------
+        
+        MIT
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Environment :: MacOS X
+Classifier: Environment :: No Input/Output (Daemon)
+Classifier: Environment :: Other Environment
+Classifier: Environment :: Win32 (MS Windows)
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: OS Independent
+Classifier: Operating System :: Other OS
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: POSIX :: BSD
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: POSIX :: Other
+Classifier: Operating System :: POSIX :: SunOS/Solaris
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Communications
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: Log Analysis
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Monitoring
+Classifier: Topic :: System :: Networking
+Classifier: Topic :: System :: Networking :: Monitoring

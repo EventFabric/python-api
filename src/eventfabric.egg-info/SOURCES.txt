@@ -1,0 +1,9 @@
+MANIFEST.in
+setup.py
+src/eventfabric.py
+src/eventfabric.egg-info/PKG-INFO
+src/eventfabric.egg-info/SOURCES.txt
+src/eventfabric.egg-info/dependency_links.txt
+src/eventfabric.egg-info/not-zip-safe
+src/eventfabric.egg-info/requires.txt
+src/eventfabric.egg-info/top_level.txt
