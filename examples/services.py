@@ -1,21 +1,23 @@
-import ef
+"""example using eventfabric api client library to send fake service status
+updates as events"""
+from __future__ import print_function
+
+import os
 import sys
 import time
-import math
 import random
+import argparse
 import threading
-import itertools
 
-username, password, channel, sleep_s_str, name_csv = sys.argv[1:]
-sleep_s = int(sleep_s_str)
-names = [name.strip() for name in name_csv.split(",")]
+SAMPLE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.join(SAMPLE_DIR, '..', 'src')
+sys.path.append(BASE_DIR)
 
-print "starting with", username, password, channel, names
-c = ef.Client("http://localhost:8080/ef/api/", username, password)
-
-print(c.login())
+import eventfabric as ef
+import requests
 
 def now():
+    "return current timestamp in ms"
     return int(time.time() * 1000)
 
 START = "start"
@@ -30,14 +32,6 @@ STATES = {
     ERROR: [START],
     ABORTED: [START],
     FINISHED: [START]
-}
-
-MAX_SLEEP_BY_STATE = {
-    START: int(sleep_s / 3.0) + 1,
-    STARTED: sleep_s,
-    ERROR: sleep_s,
-    ABORTED: sleep_s,
-    FINISHED: sleep_s
 }
 
 ERROR_REASONS = [
@@ -87,18 +81,24 @@ ERROR_REASONS = [
 
 
 class ServiceRunner(threading.Thread):
-    def __init__(self, name):
+    """a thread that simulates the state changes of a service and sends them
+    to Event Fabric"""
+
+    def __init__(self, name, channel, client, max_sleep):
         threading.Thread.__init__(self)
         self.name = name
         self.state = START
         self.started = None
         self.setDaemon(True)
+        self.channel = channel
+        self.client = client
+        self.max_sleep = max_sleep
 
     def run(self):
         while True:
             next_state = random.choice(STATES[self.state])
-            sleep_time = random.randint(1, MAX_SLEEP_BY_STATE[self.state])
-            print "sleeping", sleep_time, "seconds"
+            sleep_time = random.randint(1, self.max_sleep)
+            print("sleeping", sleep_time, "seconds")
             time.sleep(sleep_time)
 
             value = {
@@ -115,21 +115,66 @@ class ServiceRunner(threading.Thread):
             if self.state in (ERROR, ABORTED, FINISHED):
                 value["ended"] = now()
 
-            event = ef.Event(value, channel, username)
+            event = ef.Event(value, self.channel)
 
             if self.state != START:
-                print c.send_event(event)
+                print(self.client.send_event(event))
 
             self.state = next_state
 
-if __name__ == "__main__":
-    for name in names:
-        service_runner = ServiceRunner(name)
+def parse_args():
+    """parse and return command line arguments"""
+    parser = argparse.ArgumentParser(
+            description='Send service status updates to Event Fabric')
+
+    parser.add_argument('--username', '-u', metavar='USERNAME',
+            required=True,
+            help='Username to authenticate to Event Fabric')
+    parser.add_argument('--password', '-p', metavar='PASSWORD',
+            required=True,
+            help='Password to authenticate to Event Fabric')
+    parser.add_argument('--channel', '-c', metavar='CHANNEL',
+            required=True,
+            help='Channel used in the generated event')
+    parser.add_argument('--names', '-n', nargs='+',
+            required=True,
+            help='Names of services to generate events')
+    parser.add_argument('--sleep', '-s', type=int, default=10,
+            required=True,
+            help='Maximum interval between status for a service')
+    parser.add_argument('--url', '-U', metavar='URL',
+            help='URL for Event Fabric API',
+            default="https://event-fabric.com/ef/api/")
+
+    return parser.parse_args()
+
+def main():
+    "program entry point"
+    args = parse_args()
+    print("Config:", args.username, args.channel, args.names, args.sleep)
+    client = ef.Client(args.username, args.password, args.url)
+
+    try:
+        login_ok, login_response = client.login()
+        print("Login:", login_ok)
+
+        if not login_ok:
+            print("Error authenticating", login_response)
+            return
+    except requests.exceptions.ConnectionError as conn_error:
+        print("Error connection to server", args.url, str(conn_error))
+        return
+
+    for name in args.names:
+        service_runner = ServiceRunner(name, args.channel, client, args.sleep)
         service_runner.start()
 
     while True:
         try:
             time.sleep(1)
         except KeyboardInterrupt:
-            print "closing"
+            print("Keyboard interrupt, closing")
             break
+
+if __name__ == "__main__":
+    main()
