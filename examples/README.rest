@@ -1,0 +1,65 @@
+Examples
+========
+
+sendjson.py
+-----------
+
+Sends a the content of a file with JSON in it as an event.
+
+Command line options::
+
+    $ python sendjson.py -h
+
+    usage: sendjson.py [-h] --username USERNAME --password PASSWORD --channel
+                       CHANNEL --path PATH [--url URL]
+
+    Send JSON to Event Fabric
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --username USERNAME, -u USERNAME
+                            Username to authenticate to Event Fabric
+      --password PASSWORD, -p PASSWORD
+                            Password to authenticate to Event Fabric
+      --channel CHANNEL, -c CHANNEL
+                            Channel used in the generated event
+      --path PATH, -P PATH  Path to the JSON file you want to send
+      --url URL, -U URL     URL for Event Fabric API
+
+Sample usage::
+
+    python sendjson.py -P example.json -u mariano -p secret
+
+services.py
+-----------
+
+Simulates the status change of services and sends them to Event Fabric.
+
+Command line options::
+
+    $ python services.py -h
+
+    usage: services.py [-h] --username USERNAME --password PASSWORD --channel
+                       CHANNEL --names NAMES [NAMES ...] --sleep SLEEP [--url URL]
+
+    Send service status updates to Event Fabric
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --username USERNAME, -u USERNAME
+                            Username to authenticate to Event Fabric
+      --password PASSWORD, -p PASSWORD
+                            Password to authenticate to Event Fabric
+      --channel CHANNEL, -c CHANNEL
+                            Channel used in the generated event
+      --names NAMES [NAMES ...], -n NAMES [NAMES ...]
+                            Names of services to generate events
+      --sleep SLEEP, -s SLEEP
+                            Maximum interval between status for a service
+      --url URL, -U URL     URL for Event Fabric API
+
+Sample usage::
+
+    python services.py -u mariano -p secret -c my.channel -n service1 service2 foo bar baz --sleep 20
+
+will generate events for services: service1, service2, foo, bar, baz 
