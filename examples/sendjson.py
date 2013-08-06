@@ -16,7 +16,7 @@ import requests
 
 def parse_args():
     """parse and return command line arguments"""
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Send JSON to Event Fabric')
 
     parser.add_argument('--username', '-u', metavar='USERNAME',
             required=True,
