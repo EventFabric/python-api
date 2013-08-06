@@ -1,0 +1,57 @@
+Event Fabric API Client
+=======================
+
+Python 2 and 3 implementation of Event Fabric API to send events.
+
+Setup
+-----
+
+The library dependes on the `Requests <http://docs.python-requests.org/en/latest/>`_ HTTP library, install it with::
+
+    pip install requests
+
+Usage
+-----
+
+see the examples folder for more usage examples
+
+::
+
+    # import the library
+    >>> import eventfabric as ef
+
+    # create a client instance specifying username and password
+    >>> client = ef.Client("username", "password")
+
+    # authenticate, should return True and 200, if not there was an error
+    >>> client.login()
+    (True, <Response [200]>)
+
+    # create an event instance
+
+    # the first parameter is a free form JSON
+    # value that contains information about the event
+
+    # the second is the name of the channel where that event will go to
+
+    # the channel is used to subscribe to a stream of events with the same
+    # channel id
+    >>> event1 = ef.Event({"name": "Bob", "count": 10}, "my.channel")
+
+    # send the event, it should return True and 201, if not there was an error,
+    # make sure to check for authentication errors on long running agents to
+    # reauthenticate in case your credentials expire
+    >>> client.send_event(event1)
+    (True, <Response [201]>)
+
+Test
+----
+
+::
+
+    python tests/eventfabric_tests.py
+
+License
+-------
+
+MIT
