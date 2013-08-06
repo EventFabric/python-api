@@ -6,7 +6,11 @@ Python 2 and 3 implementation of Event Fabric API to send events.
 Setup
 -----
 
-The library dependes on the `Requests <http://docs.python-requests.org/en/latest/>`_ HTTP library, install it with::
+If you want to use the library you can install it with pip::
+
+    sudo pip install eventfabric
+
+For development the library depends on the `Requests <http://docs.python-requests.org/en/latest/>`_ HTTP library, install it with::
 
     pip install requests
 
