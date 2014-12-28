@@ -7,6 +7,8 @@ import unittest
 TEST_DIR = os.path.dirname(__file__)
 BASE_DIR = os.path.join(TEST_DIR, '..', 'src')
 sys.path.append(BASE_DIR)
+USERNAME = "admin"
+PASSWORD = "secret"
 
 import eventfabric as ef
 
@@ -31,25 +33,25 @@ class TestEventFabric(unittest.TestCase):
 
     def test_client_creation(self):
         "test that the client is created and parameters are set correctly"
-        client = ef.Client("username", "password",
-                "http://localhost:8080/ef/api")
-        self.assertEqual(client.username, "username")
-        self.assertEqual(client.password, "password")
-        self.assertEqual(client.root_url, "http://localhost:8080/ef/api/")
+        client = ef.Client(USERNAME, PASSWORD,
+                "http://localhost:8080/")
+        self.assertEqual(client.username, USERNAME)
+        self.assertEqual(client.password, PASSWORD)
+        self.assertEqual(client.root_url, "http://localhost:8080/")
         self.assertEqual(client.cookies, None)
-        self.assertEqual(client.credentials["username"], "username")
-        self.assertEqual(client.credentials["password"], "password")
+        self.assertEqual(client.credentials["username"], USERNAME)
+        self.assertEqual(client.credentials["password"], PASSWORD)
 
     def test_endpoint(self):
         "tests that endpoints are created correctly"
-        client = ef.Client("username", "password",
-                "http://localhost:8080/ef/api")
-        self.assertEqual(client.endpoint("session"),
-                "http://localhost:8080/ef/api/session")
+        client = ef.Client(USERNAME, PASSWORD,
+                "http://localhost:8080/")
+        self.assertEqual(client.endpoint("sessions"),
+                "http://localhost:8080/sessions")
 
     def test_login(self):
-        client = ef.Client("username", "password",
-                "http://localhost:8080/ef/api")
+        client = ef.Client(USERNAME, PASSWORD,
+                "http://localhost:8080/")
         storage = []
         requester = fake_post(storage, FakeResponse(200, "cookies!"))
         status, response = client.login(requester)
@@ -58,17 +60,17 @@ class TestEventFabric(unittest.TestCase):
         data_arg = kwargs["data"]
         headers = kwargs["headers"]
 
-        self.assertTrue(status) 
+        self.assertTrue(status)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.cookies, "cookies!")
         self.assertEqual(response.cookies, client.cookies)
         self.assertEqual(data_arg, json.dumps(client.credentials))
         self.assertEqual(headers["content-type"], "application/json")
-        self.assertEqual(endpoint, "http://localhost:8080/ef/api/session")
+        self.assertEqual(endpoint, "http://localhost:8080/sessions")
 
     def test_send_event(self):
-        client = ef.Client("username", "password",
-                "http://localhost:8080/ef/api")
+        client = ef.Client(USERNAME, PASSWORD,
+                "http://localhost:8080/")
         storage = []
         requester = fake_post(storage, FakeResponse(201))
         data = {"name": "bob", "count": 10}
@@ -84,7 +86,7 @@ class TestEventFabric(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(data_arg, json.dumps(event.json))
         self.assertEqual(headers["content-type"], "application/json")
-        self.assertEqual(endpoint, "http://localhost:8080/ef/api/event")
+        self.assertEqual(endpoint, "http://localhost:8080/streams/" + USERNAME + "/" + channel + "/")
 
 if __name__ == '__main__':
     unittest.main()

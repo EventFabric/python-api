@@ -14,21 +14,23 @@ except ImportError:
 class Client(object):
     """API Client"""
     def __init__(self, username, password,
-            root_url="https://event-fabric.com/api/"):
+            root_url="https://event-fabric.com/"):
         self.root_url = root_url if root_url.endswith("/") else root_url + "/"
         self.username = username
+        self.token = None
+        self.session_header_name = "x-session"
         self.password = password
-        self.cookies = None
 
     def login(self, requester=requests.post):
         """login to the service with the specified credentials, return a tuple
         with a boolean specifying if the login was successful and the response
         object"""
         headers = {'content-type': 'application/json'}
-        response = requester(self.endpoint("session"),
+        response = requester(self.endpoint("sessions"),
+                verify = False,
                 data=json.dumps(self.credentials), headers=headers)
 
-        self.cookies = response.cookies
+        self.token = response.json().get("token")
 
         status_ok = response.status_code in (200, 201)
         return status_ok, response
@@ -50,8 +52,12 @@ class Client(object):
         the login was successful and the response object"""
  
         headers = {'content-type': 'application/json'}
-        response = requester(self.endpoint("event"),
-                data=json.dumps(event.json), cookies=self.cookies,
+        if self.token:
+            headers[self.session_header_name] = self.token
+        url = self.endpoint("streams") + "/" + self.username + "/" + event.channel + "/"
+        response = requester(url,
+                verify = False,
+                data=json.dumps(event.value),
                 headers=headers)
 
         status_ok = response.status_code in (200, 201)

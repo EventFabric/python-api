@@ -32,7 +32,7 @@ def parse_args():
             help='Path to the JSON file you want to send')
     parser.add_argument('--url', '-U', metavar='URL',
             help='URL for Event Fabric API',
-            default="https://event-fabric.com/ef/api/")
+            default="https://event-fabric.com/")
 
     return parser.parse_args()
 
