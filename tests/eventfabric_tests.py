@@ -14,9 +14,10 @@ import eventfabric as ef
 
 class FakeResponse(object):
     "fake response object"
-    def __init__(self, status_code=200, cookies=None):
+    def __init__(self, status_code=200):
         self.status_code = status_code
-        self.cookies = cookies
+    def json(self):
+        return {"token": "mytoken"}
 
 def fake_post(storage, return_value):
     "build a fake post function"
@@ -38,7 +39,6 @@ class TestEventFabric(unittest.TestCase):
         self.assertEqual(client.username, USERNAME)
         self.assertEqual(client.password, PASSWORD)
         self.assertEqual(client.root_url, "http://localhost:8080/")
-        self.assertEqual(client.cookies, None)
         self.assertEqual(client.credentials["username"], USERNAME)
         self.assertEqual(client.credentials["password"], PASSWORD)
 
@@ -53,7 +53,7 @@ class TestEventFabric(unittest.TestCase):
         client = ef.Client(USERNAME, PASSWORD,
                 "http://localhost:8080/")
         storage = []
-        requester = fake_post(storage, FakeResponse(200, "cookies!"))
+        requester = fake_post(storage, FakeResponse(200))
         status, response = client.login(requester)
         args, kwargs = storage.pop()
         endpoint = args[0]
@@ -62,8 +62,6 @@ class TestEventFabric(unittest.TestCase):
 
         self.assertTrue(status)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.cookies, "cookies!")
-        self.assertEqual(response.cookies, client.cookies)
         self.assertEqual(data_arg, json.dumps(client.credentials))
         self.assertEqual(headers["content-type"], "application/json")
         self.assertEqual(endpoint, "http://localhost:8080/sessions")
@@ -84,7 +82,7 @@ class TestEventFabric(unittest.TestCase):
 
         self.assertTrue(status) 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(data_arg, json.dumps(event.json))
+        self.assertEqual(data_arg, json.dumps(event.json["value"]))
         self.assertEqual(headers["content-type"], "application/json")
         self.assertEqual(endpoint, "http://localhost:8080/streams/" + USERNAME + "/" + channel + "/")
 

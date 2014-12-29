@@ -54,7 +54,7 @@ class Client(object):
         headers = {'content-type': 'application/json'}
         if self.token:
             headers[self.session_header_name] = self.token
-        url = self.endpoint("streams") + "/" + self.username + "/" + event.channel + "/"
+        url = self.endpoint("streams") + "/" + (event.username or self.username) + "/" + event.channel + "/"
         response = requester(url,
                 verify = False,
                 data=json.dumps(event.value),
@@ -71,15 +71,18 @@ class Event(object):
     channel is a string with the name that identifies this kind of events
     username is the logged in username"""
 
-    def __init__(self, value, channel):
-
+    def __init__(self, value, channel, username=None):
         self.value = value
         self.channel = channel
+        self.username = username
 
     @property
     def json(self):
         """return a json representation of the object"""
-        return {"value": self.value, "channel": self.channel}
+        res = {"value": self.value, "channel": self.channel}
+        if self.username is not None:
+            res["username"] = self.username
+        return res
 
     def __str__(self):
         return json.dumps(self.json)
