@@ -34,8 +34,7 @@ class TestEventFabric(unittest.TestCase):
 
     def test_client_creation(self):
         "test that the client is created and parameters are set correctly"
-        client = ef.Client(USERNAME, PASSWORD,
-                "http://localhost:8080/")
+        client = ef.Client(USERNAME, PASSWORD, "http://localhost:8080/")
         self.assertEqual(client.username, USERNAME)
         self.assertEqual(client.password, PASSWORD)
         self.assertEqual(client.root_url, "http://localhost:8080/")
@@ -44,14 +43,12 @@ class TestEventFabric(unittest.TestCase):
 
     def test_endpoint(self):
         "tests that endpoints are created correctly"
-        client = ef.Client(USERNAME, PASSWORD,
-                "http://localhost:8080/")
+        client = ef.Client(USERNAME, PASSWORD, "http://localhost:8080/")
         self.assertEqual(client.endpoint("sessions"),
                 "http://localhost:8080/sessions")
 
     def test_login(self):
-        client = ef.Client(USERNAME, PASSWORD,
-                "http://localhost:8080/")
+        client = ef.Client(USERNAME, PASSWORD, "http://localhost:8080/")
         storage = []
         requester = fake_post(storage, FakeResponse(200))
         status, response = client.login(requester)
@@ -67,11 +64,10 @@ class TestEventFabric(unittest.TestCase):
         self.assertEqual(endpoint, "http://localhost:8080/sessions")
 
     def test_send_event(self):
-        client = ef.Client(USERNAME, PASSWORD,
-                "http://localhost:8080/")
+        client = ef.Client(USERNAME, PASSWORD, "http://localhost:8080/")
         storage = []
         requester = fake_post(storage, FakeResponse(201))
-        data = {"name": "bob", "count": 10}
+        data = {"text": "bob", "percentage": 10}
         channel = "my.channel"
         event = ef.Event(data, channel)
         status, response = client.send_event(event, requester)
@@ -80,7 +76,7 @@ class TestEventFabric(unittest.TestCase):
         data_arg = kwargs["data"]
         headers = kwargs["headers"]
 
-        self.assertTrue(status) 
+        self.assertTrue(status)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(data_arg, json.dumps(event.json["value"]))
         self.assertEqual(headers["content-type"], "application/json")
